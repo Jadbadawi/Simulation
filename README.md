@@ -168,8 +168,6 @@ an experimental and numerical study of thin-ply quasi-isotropic and Double-Doubl
 
 - **2D steady-state heat conduction** — thermal FEA, plate with mixed temperature and flux
   boundary conditions; two mesh-refinement variants for convergence checking.
-- **Bike crank static structural** — 3D stress and deformation analysis of a crank assembly
-  under pedalling load.
 
 ---
 
