@@ -4,15 +4,35 @@ Engineering simulations built in **ANSYS 2026 R1** (Fluent, CFX, Mechanical, Spa
 during summer 2026, alongside CornellX **ENGR2000X — A Hands-on Introduction to
 Engineering Simulations** on edX.
 
-The centrepiece is a **wind turbine fluid–structure interaction study**, which couples a
-rotating-frame CFD solution to a structural FEA of the blade. The supporting case builds
-the underlying competencies: external aerodynamics, turbulence modelling and mesh bias.
+The aerofoil case builds the underlying competencies — external aerodynamics, turbulence
+modelling and mesh bias — which then carry into the centrepiece: a **wind turbine
+fluid–structure interaction study**, coupling a rotating-frame CFD solution to a structural
+FEA of the blade.
 
 Jad El Badaoui — Aerospace Engineering, University of Bristol
 
 ---
 
-## 1. Wind Turbine — Fluid–Structure Interaction ⭐
+## 1. NACA 0012 Aerofoil — External Aerodynamics & Turbulence
+
+Two-dimensional RANS solution over a NACA 0012 section, used to build up turbulence
+modelling and boundary-layer meshing technique. A **biased mesh** clusters cells toward the
+surface and into the wake, so the boundary layer is resolved without paying for uniform
+refinement across the whole domain.
+
+| | |
+|---|---|
+| ![Velocity contours](naca0012-airfoil/01-velocity-contours.png) | ![Pressure contours](naca0012-airfoil/02-pressure-contours.png) |
+| **Velocity magnitude** — stagnation at the leading edge, acceleration over the suction surface (peak ≈ 120 m/s), wake deficit aft of the trailing edge. | **Pressure field** — the suction peak and trailing-edge recovery. |
+| ![TKE](naca0012-airfoil/03-turbulent-kinetic-energy.png) | ![Velocity vectors](naca0012-airfoil/04-velocity-vectors.png) |
+| **Turbulent kinetic energy** — cleanly isolates the boundary layer as a thin high-TKE sheet that thickens aft and sheds into the wake. A good check that the near-wall mesh is adequate. | **Velocity vectors** — flow turning around the leading edge. |
+
+The TKE plot is the most diagnostically useful of the four: if the near-wall mesh is too
+coarse, the boundary layer smears across cells instead of appearing as a sharp sheet.
+
+---
+
+## 2. Wind Turbine — Fluid–Structure Interaction ⭐
 
 The main project. A three-bladed horizontal-axis wind turbine is solved as a **one-way
 coupled FSI**: the CFD solution produces the aerodynamic pressure field, which is then
@@ -101,25 +121,6 @@ directly against the tower clearance envelope.
   drives blade life in service.
 - Run on the **ANSYS Student licence**, which caps mesh size and therefore limits
   boundary-layer resolution.
-
----
-
-## 2. NACA 0012 Aerofoil — External Aerodynamics & Turbulence
-
-Two-dimensional RANS solution over a NACA 0012 section, used to build up turbulence
-modelling and boundary-layer meshing technique. A **biased mesh** clusters cells toward the
-surface and into the wake, so the boundary layer is resolved without paying for uniform
-refinement across the whole domain.
-
-| | |
-|---|---|
-| ![Velocity contours](naca0012-airfoil/01-velocity-contours.png) | ![Pressure contours](naca0012-airfoil/02-pressure-contours.png) |
-| **Velocity magnitude** — stagnation at the leading edge, acceleration over the suction surface (peak ≈ 120 m/s), wake deficit aft of the trailing edge. | **Pressure field** — the suction peak and trailing-edge recovery. |
-| ![TKE](naca0012-airfoil/03-turbulent-kinetic-energy.png) | ![Velocity vectors](naca0012-airfoil/04-velocity-vectors.png) |
-| **Turbulent kinetic energy** — cleanly isolates the boundary layer as a thin high-TKE sheet that thickens aft and sheds into the wake. A good check that the near-wall mesh is adequate. | **Velocity vectors** — flow turning around the leading edge. |
-
-The TKE plot is the most diagnostically useful of the four: if the near-wall mesh is too
-coarse, the boundary layer smears across cells instead of appearing as a sharp sheet.
 
 ---
 
