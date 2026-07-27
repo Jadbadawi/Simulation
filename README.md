@@ -5,9 +5,8 @@ during summer 2026, alongside CornellX **ENGR2000X — A Hands-on Introduction t
 Engineering Simulations** on edX.
 
 The centrepiece is a **wind turbine fluid–structure interaction study**, which couples a
-rotating-frame CFD solution to a structural FEA of the blade. The remaining cases build
-the underlying competencies: external aerodynamics, turbulence modelling, mesh bias,
-laminar internal flow, and composite geometry definition.
+rotating-frame CFD solution to a structural FEA of the blade. The supporting case builds
+the underlying competencies: external aerodynamics, turbulence modelling and mesh bias.
 
 Jad El Badaoui — Aerospace Engineering, University of Bristol
 
@@ -126,60 +125,15 @@ coarse, the boundary layer smears across cells instead of appearing as a sharp s
 
 ---
 
-## 3. Laminar Pipe Flow — Validated Against Analytical Solution
-
-![Pipe flow](laminar-pipe-flow/01-velocity-development.png)
-
-Developing laminar flow in a circular pipe. Uniform **1.0 m/s** inlet, no-slip walls, and
-the profile develops downstream into the fully-developed parabolic (Hagen–Poiseuille)
-distribution.
-
-**This one has a genuine validation check.** For fully-developed laminar pipe flow, theory
-gives a centreline velocity of exactly twice the mean:
-
-```
-u_max / u_mean = 2.0
-```
-
-The simulation reaches a centreline velocity of **1.98 m/s** against a 1.0 m/s inlet — a
-**1 % error** against the analytical result. The entrance length needed to reach that
-profile is also visible as the developing region at the inlet.
-
-Being able to verify a solver against a closed-form solution before trusting it on a
-problem that has no closed-form answer is the entire point of the exercise.
-
----
-
-## 4. Composite Fin — Geometry & Layup
-
-![Fin geometry](composite-fin/01-geometry.png)
-
-Swept composite fin modelled in SpaceClaim as a surface body for shell meshing, with a
-carbon-fibre laminate material definition. Surface-body idealisation is the correct
-approach for thin-walled composite structures — a solid mesh through a 2 mm skin would be
-enormously wasteful and badly conditioned.
-
-This ties into my composites research: **[Composite-Analysis](https://github.com/Jadbadawi/Composite-Analysis)**,
-an experimental and numerical study of thin-ply quasi-isotropic and Double-Double laminates.
-
----
-
-## Also completed (no figures exported)
-
-- **2D steady-state heat conduction** — thermal FEA, plate with mixed temperature and flux
-  boundary conditions; two mesh-refinement variants for convergence checking.
-
----
-
 ## Skills demonstrated
 
 | Area | Detail |
 |---|---|
-| **CFD** | Fluent & CFX, rotating reference frames (MRF), RANS turbulence modelling, internal and external flow |
-| **FEA** | Static structural, thermal conduction, shell vs solid idealisation, cantilever load paths |
+| **CFD** | Fluent & CFX, rotating reference frames (MRF), RANS turbulence modelling, external aerodynamics |
+| **FEA** | Static structural, cantilever load paths |
 | **Multiphysics** | One-way FSI — mapping a CFD pressure field onto a structural mesh |
 | **Meshing** | Boundary-layer inflation, mesh biasing, refinement studies |
-| **Verification** | Validation against analytical solutions (Hagen–Poiseuille), mesh sensitivity |
+| **Verification** | Mesh sensitivity, near-wall resolution checks (TKE sheet diagnostics) |
 | **Theory** | Blade element momentum theory, velocity triangles, aerofoil pressure distributions |
 
 ---
