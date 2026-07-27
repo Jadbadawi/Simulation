@@ -60,10 +60,8 @@ torque and the flapwise bending load.
 
 ### Linking the two physics domains
 
-![Blade element forces](turbine-fsi/05-blade-element-forces.png)
-
-The annotated section shows the **blade element velocity triangle** that connects the
-aerodynamics to the structure. The blade sees a relative velocity
+The **blade element velocity triangle** is what connects the aerodynamics to the
+structure. The blade sees a relative velocity
 
 ```
 U_rel = U + ΩR          (freestream + rotational component)
