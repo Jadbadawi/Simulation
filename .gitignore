@@ -1,0 +1,27 @@
+# ---- ANSYS project files and working directories ----
+# Excluded deliberately: several embed CornellX ENGR2000X course geometry,
+# and complete solution archives shouldn't be public for an active course.
+*.wbpj
+*.wbpz
+*_files/
+.*_files.backup/
+*.x_t
+*.x_b
+*.stp
+*.step
+*.iges
+
+# ---- ANSYS solver scratch / licensed software ----
+*.7z
+*.dvd
+cleanup-fluent-*.bat
+*.trn
+*.err
+*.lock
+.lock
+.project_cache
+
+# ---- OS ----
+Thumbs.db
+desktop.ini
+.DS_Store
