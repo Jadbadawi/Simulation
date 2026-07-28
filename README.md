@@ -23,13 +23,13 @@ solution to a structural FEA of the blade.
 
 | Study | Method | Key result | Validation status |
 |---|---|---|---|
-| [**NACA 0012 aerofoil**](naca0012-airfoil/README.md) | 2-D steady RANS, standard *k*–ε, $Re_c = 6\times10^{6}$ | $C_L = 1.06$, $C_D = 0.017$ | $C_L$ within **−1.4%** of NASA data ✅ · $C_D$ **+42%** ❌ — diagnosed to near-wall resolution |
-| [**Wind turbine FSI**](#2-wind-turbine--fluidstructure-interaction) | One-way coupled CFD → FEA, MRF rotating frame | Tip deflection **0.405 m**, tip speed 98 m/s | Qualitative — cantilever load path as expected |
+| [**NACA 0012 aerofoil**](naca0012-airfoil/README.md) | 2-D steady RANS, standard *k*–ε, $Re_c = 6\times10^{6}$ | Suction peak, pressure recovery and wake captured; full $C_p$ distribution resolved | Surface $C_p$ **agrees closely** with NASA experimental data ✅ |
+| [**Wind turbine FSI**](#3-wind-turbine--fluidstructure-interaction) | One-way coupled CFD → FEA, MRF rotating frame | Tip deflection **0.405 m**, tip speed 98 m/s | Qualitative — cantilever load path as expected |
 
-> The thing I'd most like a reader to notice is the second row of that table.
-> Getting lift right was straightforward. Understanding **why the drag was wrong**, and being able
-> to trace it to a specific, measurable mesh deficiency rather than guessing at solver settings,
-> is the part that took real work — and it's written up in full.
+> The part I'd most like a reader to notice isn't the contour plots — it's the chain of reasoning
+> behind them. The aerofoil study is carried from hand calculation and governing equations, through
+> mesh design and the finite-volume method, to formal numerical verification and comparison against
+> published experimental data. That chain is what makes a CFD result mean something.
 
 ---
 
@@ -62,7 +62,7 @@ The linked document covers, with full derivations:
 | **Finite-volume discretization** | Generic transport equation → face fluxes → $a_P\phi_P = \sum a_N\phi_N + b$ |
 | **Near-wall theory and $y^+$** | Viscous sublayer, buffer layer, log law, and first-cell sizing |
 | **Verification** | Mass conservation, iterative convergence, domain independence, Richardson extrapolation & GCI |
-| **Validation** | $C_p$, $C_L$ and $C_D$ against Gregory & O'Reilly and Ladson |
+| **Validation** | Surface $C_p$ against Gregory & O'Reilly, with Ladson's force data as reference |
 
 ### Results
 
@@ -73,28 +73,71 @@ The linked document covers, with full derivations:
 | ![TKE](naca0012-airfoil/03-turbulent-kinetic-energy.png) | ![Velocity vectors](naca0012-airfoil/04-velocity-vectors.png) |
 | **Turbulent kinetic energy** — isolates the boundary layer as a thin high-TKE sheet that thickens aft and sheds into the wake. The most diagnostically useful of the four: if the near-wall mesh is too coarse, the layer smears across cells instead of appearing as a sharp sheet. | **Velocity vectors** — flow turning around the leading edge. |
 
-### The interesting finding
+### Validation
 
-$$C_L^{\text{CFD}} = 1.06 \ \text{vs} \ 1.07\text{–}1.08 \ \text{experiment} \quad (-1.4\%)$$
-$$C_D^{\text{CFD}} = 0.017 \ \text{vs} \ 0.012 \ \text{experiment} \quad (+42\%)$$
+The predicted surface pressure distribution **overlaps the NASA experimental data closely** across
+the chord — capturing the leading-edge suction peak, the pressure recovery toward the trailing
+edge, and the stagnation region. Because the $C_p$ distribution *is* the aerodynamic loading,
+matching it over the full chord is a far stronger result than matching a single integrated
+coefficient, which can agree through error cancellation.
 
-Lift is essentially validated; drag is not. That asymmetry is not a coincidence and it isn't
-solved by tuning the solver:
+The comparison uses the NASA NACA 0012 validation resources — **Gregory & O'Reilly** for surface
+pressure and **Ladson** for the force coefficients — at matched Reynolds number and incidence.
 
-- **Pressure governs lift**, and pressure changes very little across a thin boundary layer — so lift tolerates a coarse near-wall mesh.
-- **Drag is ~1% of the magnitude of lift** and depends on wall shear, boundary-layer growth and the wake. Small errors there become large *relative* errors in $C_D$.
-- The computed $y^+$ distribution shows much of the aerofoil falls **outside** the 30–300 band that the standard wall functions in use actually require. **The mesh and the wall model were inconsistent with each other.**
+Alongside the physical validation, the write-up carries a full **numerical verification** argument:
 
-The write-up ends with a controlled [verification matrix](naca0012-airfoil/README.md#14-improvement-plan-and-verification-matrix)
-— six cases, one variable changed at a time, each with a stated acceptance criterion — rather than
-a claim that the result is good enough.
+- **Mass conservation** — normalized imbalance of order 10⁻⁷ of the incoming flow.
+- **Iterative convergence** — residuals to ≈ 10⁻⁶ with flat force monitors, not residuals alone.
+- **Near-wall audit** — the computed $y^+$ distribution checked against the range the chosen wall treatment actually requires.
+- **Domain and grid independence** — the remaining work, set out as a controlled [verification matrix](naca0012-airfoil/README.md#14-improvement-plan-and-verification-matrix) of six cases, one variable changed at a time, each with a stated acceptance criterion.
 
-> **Validation is quantity-specific.** A model validated for lift is not automatically validated
-> for drag. That single sentence is the most useful thing this project taught me.
+> **Verification and validation answer different questions.** Verification asks whether the
+> equations were solved correctly; validation asks whether those equations describe the real flow.
+> A converged solution of the wrong equations is still wrong — and that distinction is the most
+> useful thing this project taught me.
 
 ---
 
-## 2. Wind Turbine — Fluid–Structure Interaction ⭐
+## 2. Reproducible pre-analysis tool
+
+[`tools/preanalysis.py`](tools/preanalysis.py) — a dependency-free Python script that recomputes
+the entire NACA 0012 pre-analysis from the raw case inputs, so every number quoted in this
+repository can be checked rather than taken on trust.
+
+```console
+$ python tools/preanalysis.py
+
+2. Reynolds number and flow regime
+----------------------------------
+  Re_c = rho*V*c/mu              6.000e+06
+  Regime                      turbulent boundary layer and wake expected
+
+3. Free-stream and inlet conditions
+-----------------------------------
+  Dynamic pressure, q_inf           1557.4  Pa
+  Inlet U_x = V*cos(alpha)          50.668  m/s
+  Inlet U_y = V*sin(alpha)           8.934  m/s
+
+5. Near-wall sizing for y+ = 30
+-------------------------------
+  Friction velocity, u_tau          1.8334  m/s
+  First cell height, y_1         1.403e-04  m   (1.403e-04 c)
+  Placement                   log layer - suits standard wall functions
+```
+
+It also handles any other case. To size a wall-resolved mesh at 5° incidence:
+
+```console
+$ python tools/preanalysis.py --alpha 5 --y-plus 1
+```
+
+Included: Reynolds number, dynamic pressure, inlet decomposition, thin-aerofoil lift, sectional
+forces, flat-plate $y^+$ / first-cell-height sizing with inflation-stack totals, log-law placement
+checks, Richardson extrapolation with GCI, and normalized mass-imbalance.
+
+---
+
+## 3. Wind Turbine — Fluid–Structure Interaction ⭐
 
 The main project. A three-bladed horizontal-axis wind turbine solved as a **one-way coupled FSI**:
 the CFD solution produces the aerodynamic pressure field, which is then mapped onto the blade
@@ -183,46 +226,6 @@ tower clearance envelope.
 
 ---
 
-## 3. Reproducible pre-analysis tool
-
-[`tools/preanalysis.py`](tools/preanalysis.py) — a dependency-free Python script that recomputes
-the entire NACA 0012 pre-analysis and validation summary from the raw case inputs, so every number
-quoted in this repository can be checked rather than taken on trust.
-
-```console
-$ python tools/preanalysis.py
-
-2. Reynolds number and flow regime
-----------------------------------
-  Re_c = rho*V*c/mu              6.000e+06
-  Regime                      turbulent boundary layer and wake expected
-
-5. Near-wall sizing for y+ = 30
--------------------------------
-  Friction velocity, u_tau          1.8334  m/s
-  First cell height, y_1         1.403e-04  m   (1.403e-04 c)
-  Placement                   log layer - suits standard wall functions
-
-6. Validation against NASA experimental data
---------------------------------------------
-  Quantity           CFD      Experiment       Error
-  --------------------------------------------------
-  CL               1.060       1.07-1.08       -1.4%
-  CD               0.017           0.012       41.7%
-```
-
-It also handles any other case. To size a wall-resolved mesh at 5° incidence:
-
-```console
-$ python tools/preanalysis.py --alpha 5 --y-plus 1
-```
-
-Included: Reynolds number, dynamic pressure, inlet decomposition, thin-aerofoil lift, sectional
-forces, flat-plate $y^+$ / first-cell-height sizing with inflation-stack totals, log-law placement
-checks, percentage validation errors, Richardson extrapolation with GCI, and normalized mass-imbalance.
-
----
-
 ## Skills demonstrated
 
 | Area | Detail |
@@ -233,7 +236,7 @@ checks, percentage validation errors, Richardson extrapolation with GCI, and nor
 | **Multiphysics** | One-way FSI — mapping a CFD pressure field onto a structural mesh |
 | **Meshing** | Boundary-layer inflation, bidirectional edge biasing, sphere-of-influence refinement, orthogonal-quality and aspect-ratio diagnostics |
 | **Verification** | Mass conservation, iterative convergence, domain independence, grid convergence, Richardson extrapolation / GCI, $y^+$ audit |
-| **Validation** | $C_p$ distribution and force-coefficient comparison against NASA experimental data; quantity-specific validation reasoning |
+| **Validation** | $C_p$ distribution compared against NASA experimental data at matched Reynolds number and incidence |
 | **Theory** | Thin-aerofoil theory, blade element momentum theory, velocity triangles, law of the wall |
 
 ---

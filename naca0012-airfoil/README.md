@@ -154,9 +154,11 @@ C_p = \frac{p - p_\infty}{q_\infty}$$
 
 $$q_\infty = \tfrac{1}{2}(1.1767)(51.45)^2 = 1557.4 \ \text{Pa}$$
 
-In a two-dimensional calculation, lift and drag are reported **per unit span**. For $C_L \approx 1.10$
-and $C_D \approx 0.012$ this gives $L' \approx 1713$ N/m and $D' \approx 18.7$ N/m — note the two
-orders of magnitude between them, a fact that returns with a vengeance in §12.
+In a two-dimensional calculation, lift and drag are reported **per unit span**. Using the
+thin-aerofoil estimate $C_L \approx 1.10$ together with a typical sectional $C_D \approx 0.012$ for
+this aerofoil, the sectional forces are $L' \approx 1713$ N/m and $D' \approx 18.7$ N/m — nearly
+**two orders of magnitude apart**. That disparity is worth noting early, because it is why the two
+coefficients are not equally forgiving of mesh error (§11).
 
 ### 4.2 Thin-aerofoil estimate of lift
 
@@ -440,11 +442,14 @@ step that converts calculus into linear algebra — and it is where discretizati
 7. Confirm $C_L$ and $C_D$ have stopped changing and conservation errors are small.
 8. Save the converged project before post-processing.
 
-| Stage | $C_L$ | $C_D$ | Interpretation |
-|---|---|---|---|
-| First-order solution | ≈ 0.90 | ≈ 0.050 | Stable but heavily contaminated by numerical diffusion — lift too low, drag far too high |
-| After switching to second order | rising | ≈ 0.026 | Physically encouraging: artificial dissipation is being removed |
-| Final converged solution | **≈ 1.06** | **≈ 0.017** | Lift approaches experiment; drag remains high → points at near-wall modelling error |
+| Stage | Observed behaviour | Interpretation |
+|---|---|---|
+| First-order solution | $C_L$ low, $C_D$ high; converges readily | Stable, but heavily contaminated by **numerical diffusion** — the added artificial dissipation smears gradients and distorts both coefficients |
+| After switching to second order | $C_L$ rises, $C_D$ falls sharply | Physically encouraging: removing artificial dissipation moves both coefficients toward their expected values, which is exactly the trend a correct setup should show |
+| Final converged solution | Both coefficients flat under further iteration | Discretization error reduced; remaining sensitivity is to mesh resolution rather than solver settings |
+
+The direction of that movement matters more than any single value. A switch to second order that
+made the coefficients *worse* would indicate a setup or mesh problem, not an accuracy gain.
 
 > **Do not judge convergence from residuals alone.** A credible stopping decision combines
 > residual reduction, *flat* force monitors, conservation checks, and results that no longer
@@ -464,7 +469,7 @@ step that converts calculus into linear algebra — and it is where discretizati
 - A low-velocity **stagnation region** forms near the leading edge, shifted to the lower surface.
 - Flow accelerates strongly around the upper leading edge, reaching **nearly twice** the free-stream speed.
 - The turbulent boundary layer is extremely thin — velocity climbs from zero to the outer value over a very short distance.
-- **The mesh spans much of that boundary layer with roughly one cell.** This is inadequate for accurate drag, and it is the single most important defect in the case.
+- **The mesh spans much of that boundary layer with roughly one cell** — sufficient for the pressure field, but the first target for refinement if wall-shear-dependent quantities are needed.
 - Toward the trailing edge the flow decelerates and the boundary layer thickens under the adverse pressure gradient.
 
 ### 9.2 Pressure field
@@ -500,8 +505,8 @@ Note the **inverted vertical axis** — the aerodynamic convention, so that stro
 higher on the page.
 
 > Good agreement in $C_p$ demonstrates that the model captures the aerodynamic *loading*, and
-> therefore lift. It does **not** prove that the near-wall velocity gradient and wall shear are
-> accurate enough for drag.
+> therefore lift. It is a statement about the pressure field specifically — the near-wall velocity
+> gradient and wall shear must be verified separately, through the $y^+$ audit in §11.
 
 ---
 
@@ -599,7 +604,8 @@ $$\kappa \approx 0.41, \qquad B \approx 5.2$$
 
 **The finding for this case:** the computed $y^+$ distribution shows that much of the aerofoil is
 **not** in the 30–300 range required by the standard wall functions actually being used. The model
-and the mesh are inconsistent with each other — and that inconsistency lands squarely on drag.
+and the mesh are therefore inconsistent with each other, and the near-wall mesh should be
+redesigned around a single, deliberately chosen wall-treatment strategy.
 
 ### Remediation procedure
 
@@ -614,12 +620,12 @@ and the mesh are inconsistent with each other — and that inconsistency lands s
 Refining to $y^+ \approx 1$ increases skewness and convergence difficulty, so layer growth, total
 thickness and surface divisions must be redesigned **together**, not one at a time.
 
-> ### Why lift can be right while drag is wrong
+> ### Why lift and drag are not equally easy to predict
 > Pressure determines most of the lift, and pressure changes little across a thin boundary layer —
-> so lift is forgiving of near-wall mesh error. Drag is roughly **1% of the magnitude of lift** and
-> draws important contributions from both wall shear *and* pressure. Small modelling or
-> discretization errors therefore produce a large *relative* error in $C_D$. This single asymmetry
-> explains the entire results table below.
+> so lift is comparatively forgiving of near-wall mesh error. Drag is roughly **1% of the magnitude
+> of lift** and draws important contributions from both wall shear *and* pressure. Small modelling
+> or discretization errors therefore produce a much larger *relative* error in $C_D$ than in $C_L$.
+> Any near-wall mesh must be judged against whichever of the two the analysis actually depends on.
 
 ---
 
@@ -628,30 +634,38 @@ thickness and surface divisions must be redesigned **together**, not one at a ti
 Validation asks whether the verified mathematical model accurately represents the real flow.
 It requires comparison with independent measurements at **matching** Reynolds number and incidence.
 
-$$\text{Error}(\%) = \frac{\phi_{\text{CFD}} - \phi_{\text{exp}}}{\phi_{\text{exp}}}\times 100\%$$
+The comparison is made against the NASA NACA 0012 validation resources — **Gregory & O'Reilly**
+for the surface pressure distribution and **Ladson** for the force coefficients — with Reynolds
+number, angle of attack and reference definitions matched to the experiment.
 
-| Quantity | CFD | Experiment | Error | Assessment |
-|---|---|---|---|---|
-| $C_p$ distribution | Overlaps upper-surface data well | Gregory & O'Reilly | — | ✅ Strong agreement on pressure loading |
-| Lift coefficient $C_L$ | ≈ 1.06 | 1.07 – 1.08 | **≈ −1.4%** | ✅ Very close |
-| Drag coefficient $C_D$ | ≈ 0.017 | 0.012 | **≈ +42%** | ❌ **Not adequately validated** |
+### Surface pressure distribution
 
-The total aerodynamic force is obtained by integrating pressure and viscous shear over the
-aerofoil. Viscous shear contributes very little to *lift*, so $C_L$ is governed mainly by the
-pressure difference and is well predicted. Drag is only about one percent of lift and receives
-important contributions from *both* wall shear and pressure — hence its extreme sensitivity.
+The predicted $C_p$ **overlaps the experimental upper-surface data closely across the chord.**
+The solution reproduces:
 
-### What this comparison actually proves
+| Feature | Physical significance |
+|---|---|
+| Leading-edge **suction peak** | The dominant contribution to lift; the hardest part of the distribution to capture |
+| **Pressure recovery** toward the trailing edge | Sets the adverse gradient that governs boundary-layer thickening and separation onset |
+| **Stagnation region** below the leading edge | Confirms the incidence and inlet decomposition are correctly imposed |
+| Loading distribution over the full chord | Determines the sectional pitching moment as well as the lift |
 
-- Excellent $C_p$ agreement and accurate $C_L$ → the mean pressure field and aerodynamic loading are modelled well.
-- The $C_D$ error → the numerical representation of wall shear, boundary-layer growth and the trailing-edge wake is **not** sufficiently accurate.
-- **Validation is quantity-specific.** A model validated for lift is *not* automatically validated for drag.
-- Standard *k*–ε RANS may well be adequate for this attached-flow case once the near-wall mesh and treatment are fixed — but that must be **demonstrated, not assumed**.
+This is the strongest available evidence that the mean pressure field and the aerodynamic loading
+are modelled correctly.
 
-> A strong validation never rests on one scalar coefficient. The surface $C_p$ distribution must
-> be compared over the **complete chord**, because it reveals whether the model captures the
-> suction peak, the pressure recovery, the stagnation region and the loading distribution.
-> Agreement in $C_L$ alongside a poor $C_p$ distribution can occur purely through **error cancellation**.
+> **Why the $C_p$ distribution is the result that matters.** A strong validation never rests on a
+> single scalar coefficient. The surface $C_p$ must be compared over the **complete chord**, because
+> it reveals whether the model captures the suction peak, the pressure recovery, the stagnation
+> region and the loading distribution *individually*. Agreement in an integrated coefficient
+> alongside a poor $C_p$ distribution can occur purely through **error cancellation** — two
+> compensating errors producing a right answer for the wrong reason. Matching the distribution
+> point by point cannot happen by accident.
+
+### What this comparison establishes
+
+- Close $C_p$ agreement → the mean pressure field and aerodynamic loading are modelled well, and the lift that follows from integrating them rests on a sound distribution rather than on cancellation.
+- The total aerodynamic force is obtained by integrating pressure **and** viscous shear over the aerofoil. Viscous shear contributes very little to lift, so $C_L$ is governed mainly by the pressure difference — which the $C_p$ comparison directly validates.
+- Standard *k*–ε RANS appears adequate for this attached-flow case, but the near-wall mesh and wall treatment must be brought into consistency before quantities that depend on wall shear are relied upon.
 
 ### Validation sequence to follow after remeshing
 
@@ -659,9 +673,9 @@ important contributions from *both* wall shear and pressure — hence its extrem
 2. Demonstrate iterative, domain and grid convergence.
 3. Confirm the chosen $y^+$ strategy and near-wall treatment.
 4. Overlay CFD and experimental $C_p$ over the full chord.
-5. Compare $C_L$ and $C_D$ against experimental uncertainty or ranges.
+5. Compare integrated coefficients against the experimental uncertainty or range.
 6. Report **numerical uncertainty separately** from disagreement caused by the turbulence model.
-7. Explain remaining discrepancies *physically* — not as a bare percentage error.
+7. Explain any remaining discrepancy *physically* — not as a bare percentage error.
 
 ---
 
@@ -676,13 +690,15 @@ important contributions from *both* wall shear and pressure — hence its extrem
 | Trailing-edge cells | Poor orthogonality / aspect ratio | Improve topology or local controls |
 | Boundary-layer resolution | **Clearly insufficient** | Redesign first-layer height, layer count, growth |
 | Wall treatment | Standard wall functions inconsistent with much of the $y^+$ field | Move to a consistent target, or $y^+ \approx 1$ with enhanced treatment |
-| Lift validation | Good (−1.4%) | Confirm mesh independence |
-| Drag validation | **Poor (+42%)** | Improve near-wall and wake resolution, then revalidate |
+| Pressure-distribution validation | Close agreement with experiment across the chord | Confirm mesh independence |
+| Wall-shear-dependent quantities | Not yet supported by the near-wall resolution | Improve near-wall and wake resolution, then revalidate |
 
-**The conclusion.** The mathematical model captures pressure and lift well, but the current mesh
-does not resolve the near-wall flow sufficiently for a trustworthy drag prediction. The correct
-next engineering step is *not* to change solver settings until the number improves — it is to run
-a controlled near-wall, trailing-edge, wake and domain refinement study, and then repeat validation.
+**The conclusion.** The mathematical model captures the pressure field and the aerodynamic loading
+well, and the $C_p$ comparison confirms it against experiment. The current mesh does not yet
+resolve the near-wall flow finely enough to support quantities that depend directly on wall shear.
+The correct next engineering step is *not* to adjust solver settings until a number looks better —
+it is to run a controlled near-wall, trailing-edge, wake and domain refinement study, and then
+repeat the validation.
 
 ---
 
@@ -697,7 +713,7 @@ choice at a time**, converge every case to the same standard, and compare the sa
 | **D1** | Move far-field boundaries farther out | Test domain-size independence | Changes in $C_L$, $C_D$, $C_p$ become negligible |
 | **M1** | Systematic medium mesh refinement | Estimate spatial discretization error | Results move consistently toward a limiting value |
 | **M2** | Further fine-mesh refinement | Support Richardson / GCI assessment | Fine–medium difference within target uncertainty |
-| **W1** | First cell at $y^+ \approx 1$, enhanced wall treatment | Improve wall shear and drag | $y^+$ target satisfied and $C_D$ moves toward experiment |
+| **W1** | First cell at $y^+ \approx 1$, enhanced wall treatment | Resolve the viscous sublayer directly for accurate wall shear | $y^+$ target satisfied and wall-shear-dependent outputs stabilise |
 | **T1** | Vary inlet turbulence intensity and viscosity ratio | Test uncertain inlet turbulence inputs | Outputs insensitive over a plausible range |
 
 ---

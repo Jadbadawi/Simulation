@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NACA 0012 CFD pre-analysis and validation calculator.
+NACA 0012 CFD pre-analysis calculator.
 
 Reproduces every hand calculation quoted in ../naca0012-airfoil/README.md from the
 raw case inputs, so the numbers in the write-up can be checked rather than trusted:
@@ -10,7 +10,7 @@ raw case inputs, so the numbers in the write-up can be checked rather than trust
   * thin-aerofoil lift estimate
   * sectional forces per unit span
   * y+ / first-cell-height sizing for either wall-function or wall-resolved meshing
-  * CFD-vs-experiment validation errors
+  * verification helpers: Richardson extrapolation, GCI, mass-imbalance
 
 Standard library only. Run with no arguments for the baseline case:
 
@@ -39,10 +39,9 @@ ALPHA_DEG = 10.0  # degrees
 RHO = 1.1767  # kg/m^3
 MU = 1.009e-5  # kg/(m s)
 
-# Converged Fluent results and the NASA experimental reference values they are judged against.
-CL_CFD, CD_CFD = 1.06, 0.017
-CL_EXP_RANGE = (1.07, 1.08)  # Ladson
-CD_EXP = 0.012  # Ladson
+# Typical sectional drag for this aerofoil, used only to illustrate the magnitude of the
+# sectional forces in the pre-analysis. Reference: Ladson, NASA NACA 0012 validation data.
+CD_REFERENCE = 0.012
 
 # Log-law constants.
 KAPPA, B_LOG = 0.41, 5.2
@@ -146,12 +145,8 @@ def classify_y_plus(y_plus: float) -> str:
 
 
 # --------------------------------------------------------------------------------------
-# Verification and validation helpers
+# Verification helpers
 # --------------------------------------------------------------------------------------
-
-
-def percent_error(cfd: float, experiment: float) -> float:
-    return (cfd - experiment) / experiment * 100.0
 
 
 def grid_convergence_index(phi_1: float, phi_2: float, r: float, p: float = 2.0) -> dict:
@@ -213,7 +208,7 @@ def report(case: Case, y_plus_target: float, layers: int, growth: float) -> None
     cl_thin = case.cl_thin_aerofoil
     print(f"  CL = 2*pi*alpha             {cl_thin:>12.3f}")
     print(f"  Lift per span, L'           {case.force_per_span(cl_thin):>12.1f}  N/m")
-    print(f"  Drag per span at CD={CD_EXP:<5g}  {case.force_per_span(CD_EXP):>12.1f}  N/m")
+    print(f"  Drag per span at CD={CD_REFERENCE:<5g}  {case.force_per_span(CD_REFERENCE):>12.1f}  N/m")
     print("  -> Inviscid theory predicts zero drag, so CFD and experiment remain necessary.")
 
     rule(f"5. Near-wall sizing for y+ = {y_plus_target:g}")
@@ -229,27 +224,21 @@ def report(case: Case, y_plus_target: float, layers: int, growth: float) -> None
     print(f"  u+ viscous law / log law    {u_visc:>12.2f} / {u_log:.2f}")
     print(f"  Placement                   {classify_y_plus(y_plus_target)}")
 
-    rule("6. Validation against NASA experimental data")
-    cl_exp_mid = sum(CL_EXP_RANGE) / 2
-    print(f"  {'Quantity':<12}{'CFD':>10}{'Experiment':>16}{'Error':>12}")
-    print(f"  {'-' * 50}")
-    print(f"  {'CL':<12}{CL_CFD:>10.3f}{f'{CL_EXP_RANGE[0]}-{CL_EXP_RANGE[1]}':>16}"
-          f"{percent_error(CL_CFD, cl_exp_mid):>11.1f}%")
-    print(f"  {'CD':<12}{CD_CFD:>10.3f}{CD_EXP:>16.3f}"
-          f"{percent_error(CD_CFD, CD_EXP):>11.1f}%")
-    print(f"  {'CL (thin)':<12}{cl_thin:>10.3f}{f'{CL_EXP_RANGE[0]}-{CL_EXP_RANGE[1]}':>16}"
-          f"{percent_error(cl_thin, cl_exp_mid):>11.1f}%")
+    rule("6. Experimental reference conditions")
+    print(f"  Reference source            NASA NACA 0012 validation data")
+    print(f"    Surface Cp                Gregory and O'Reilly")
+    print(f"    Force coefficients        Ladson")
+    print(f"  Match before comparing      Re, angle of attack, reference area/chord definitions")
     print()
-    print("  Lift is governed by the pressure difference, which is well captured.")
-    print("  Drag is ~1% of lift and depends on wall shear and the wake, so the same")
-    print("  near-wall mesh error that leaves lift accurate makes drag badly wrong.")
-    print("  Validation is quantity-specific: validated for lift != validated for drag.")
+    print("  Compare the surface Cp distribution over the complete chord, not just an")
+    print("  integrated coefficient: agreement in a single scalar can arise from error")
+    print("  cancellation, whereas a point-by-point distribution match cannot.")
 
     rule("7. Worked verification examples")
-    gci = grid_convergence_index(phi_1=0.017, phi_2=0.026, r=2.0, p=2.0)
-    print(f"  GCI example (CD fine 0.017, coarse 0.026, r=2, p=2)")
-    print(f"    Richardson-extrapolated CD   {gci['phi_extrapolated']:.5f}")
-    print(f"    GCI_12                       {gci['gci_percent']:.2f}%")
+    gci = grid_convergence_index(phi_1=2.4180, phi_2=2.3950, r=2.0, p=2.0)
+    print(f"  GCI example, generic quantity (fine 2.4180, coarse 2.3950, r=2, p=2)")
+    print(f"    Richardson-extrapolated value {gci['phi_extrapolated']:.5f}")
+    print(f"    GCI_12                        {gci['gci_percent']:.2f}%")
     print(f"  Mass-imbalance check (1.0000000 in, 0.9999999 out)"
           f"   {mass_imbalance(1.0, 0.9999999):.1e}%")
 
@@ -260,7 +249,7 @@ def report(case: Case, y_plus_target: float, layers: int, growth: float) -> None
 
 def main() -> None:
     p = argparse.ArgumentParser(
-        description="NACA 0012 CFD pre-analysis and validation calculator.",
+        description="NACA 0012 CFD pre-analysis calculator.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("--chord", type=float, default=CHORD, help="chord length, m")
