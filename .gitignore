@@ -21,6 +21,12 @@ cleanup-fluent-*.bat
 .lock
 .project_cache
 
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
 # ---- OS ----
 Thumbs.db
 desktop.ini
