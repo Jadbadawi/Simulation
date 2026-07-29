@@ -3,7 +3,7 @@
 ![ANSYS 2026 R1](https://img.shields.io/badge/ANSYS-2026%20R1-FFB71B?style=flat-square&logo=ansys&logoColor=black)
 ![Fluent](https://img.shields.io/badge/Solver-Fluent%20%7C%20CFX-005386?style=flat-square)
 ![Mechanical](https://img.shields.io/badge/FEA-Mechanical-005386?style=flat-square)
-![RANS](https://img.shields.io/badge/Turbulence-RANS%20k--%CE%B5-1f77b4?style=flat-square)
+![RANS](https://img.shields.io/badge/Turbulence-k--%CE%B5%20%7C%20SST%20k--%CF%89-1f77b4?style=flat-square)
 ![Validated](https://img.shields.io/badge/Validation-NASA%20NACA%200012-success?style=flat-square)
 
 Engineering simulations built in **ANSYS 2026 R1** (Fluent, CFX, Mechanical, SpaceClaim)
@@ -24,7 +24,7 @@ solution to a structural FEA of the blade.
 | Study | Method | Key result | Validation status |
 |---|---|---|---|
 | [**NACA 0012 aerofoil**](naca0012-airfoil/README.md) | 2-D steady RANS, standard *k*–ε, $Re_c = 6\times10^{6}$ | $C_L \approx 1.06$; suction peak, pressure recovery and wake captured across the full $C_p$ distribution | Surface $C_p$ **agrees closely** with NASA data; $C_L$ within **1.4 %** of experiment ✅ |
-| [**Wind turbine FSI**](#3-wind-turbine--fluidstructure-interaction) | One-way coupled CFD → FEA, MRF rotating frame | Tip deflection **0.405 m**, tip speed 98 m/s | Qualitative — cantilever load path as expected |
+| [**Wind turbine FSI**](turbine-fsi/README.md) | One-way CFD → FEA; 120° periodic sector, rotating frame, SST *k*–ω, orthotropic shell | Tip deflection **0.405 m**; root reaction verified to **0.116 %** against hand calculation | Verified numerically; **not** experimentally validated — $C_p$ still mesh-dependent ⚠️ |
 
 > The part I'd most like a reader to notice isn't the contour plots — it's the chain of reasoning
 > behind them. The aerofoil study is carried from hand calculation and governing equations, through
@@ -36,8 +36,8 @@ solution to a structural FEA of the blade.
 ## Repository contents
 
 ```
-├── naca0012-airfoil/     Full CFD workflow: pre-analysis → V&V  ◄ the detailed write-up
-├── turbine-fsi/          One-way fluid–structure interaction study
+├── naca0012-airfoil/     Full CFD workflow: pre-analysis → V&V     ◄ detailed write-up
+├── turbine-fsi/          Rotating-frame CFD → shell FEA, one-way   ◄ detailed write-up
 └── tools/preanalysis.py  Runnable pre-analysis & validation calculator
 ```
 
@@ -144,30 +144,39 @@ checks, Richardson extrapolation with GCI, and normalized mass-imbalance.
 
 ## 3. Wind Turbine — Fluid–Structure Interaction ⭐
 
+**📖 [Read the complete technical write-up →](turbine-fsi/README.md)**
+
 The main project. A three-bladed horizontal-axis wind turbine solved as a **one-way coupled FSI**:
-the CFD solution produces the aerodynamic pressure field, which is then mapped onto the blade
-structure as the load case for a static structural analysis.
+a rotating-frame CFD solution on a 120° periodic sector produces the aerodynamic pressure field,
+which is then mapped onto an orthotropic composite shell model as the load case for a static
+structural analysis.
 
 This is the interesting part — most course exercises are purely CFD *or* purely FEA. Here the
 output of one physics domain becomes the input of the other, which is how real aeroelastic sizing
-work is actually done.
+work is actually done — and it introduces a class of error, load transfer between non-matching
+meshes, that no single-physics analysis has.
 
 ```mermaid
 flowchart TD
-    G["Geometry<br/>3-bladed HAWT rotor"] --> M["Mesh<br/>refined at blade surfaces"]
-    M --> C["Fluent / CFX<br/>steady MRF rotating frame"]
-    C --> P["Aerodynamic<br/>pressure field"]
-    P --> S["Mechanical<br/>static structural"]
-    S --> R["Tip deflection 0.405 m<br/>+ stress distribution"]
+    G["Geometry<br/>one blade, 120° wedge"] --> M["Mesh<br/>inflation on blade,<br/>refinement in rotor + wake"]
+    M --> C["Fluent<br/>steady rotating frame<br/>SST k-omega"]
+    C --> P["Torque, power, Cp<br/>+ blade pressure field"]
+    P --> X["Load transfer<br/>non-matching meshes"]
+    X --> S["Mechanical<br/>orthotropic shell,<br/>static structural"]
+    S --> R["Tip deflection 0.405 m<br/>+ stress + root reactions"]
     R -.->|"not fed back —<br/>one-way coupling"| C
 ```
 
 ### Fluid domain
 
-The rotor is solved in a **rotating (moving) reference frame**, so a steady-state solution
-captures rotation without meshing a transient sliding interface. Blade velocity in the stationary
-frame reaches **98 m/s at the tip** over a rotor of roughly 45 m radius — the linear $\Omega r$
-spanwise gradient is clearly visible in the vector plot.
+The rotor is solved in a **rotating reference frame**, so a steady-state solution captures rotation
+without meshing a transient sliding interface, and **rotational periodicity** lets one blade in a
+120° sector stand for all three — cutting the cost by a factor of three at the price of ruling out
+tower shadow, wind shear and yaw.
+
+Blade velocity in the stationary frame reaches **98.05 m/s at the tip** over a 44.2 m rotor,
+against **98.12 m/s** from $\Omega R$ by hand — a 0.07 % agreement that verifies the rotation rate,
+axis, units and root offset in a single check.
 
 | | |
 |---|---|
@@ -191,7 +200,9 @@ pressure difference across the section produces both the useful torque and the f
 The **blade element velocity triangle** connects the aerodynamics to the structure. The blade sees
 a relative velocity
 
-$$U_{\text{rel}} = U + \Omega R \qquad \text{(freestream + rotational component)}$$
+$$
+U_{\text{rel}} = U + \Omega R \qquad \text{(freestream + rotational component)}
+$$
 
 at an angle of attack $\alpha$ to the chord line. The resulting sectional lift $dF_L$ resolves into:
 
@@ -206,26 +217,45 @@ concentrates at the root.
 
 ![Total deformation](turbine-fsi/06-fea-total-deformation.png)
 
-The CFD pressure field applied to the blade, with the root fixed, gives a **maximum tip deflection
-of 0.405 m**. The deformation profile is classic cantilever behaviour — near-zero at the fixed root,
+The blade is modelled as a **homogenised orthotropic composite shell** — outer skin plus internal
+spar, both tapering along the span, with a longitudinal stiffness 15× the transverse. The CFD
+pressure field plus centrifugal inertia, with the root on a remote displacement, gives a **maximum
+tip deflection of 0.405 m**. The profile is classic cantilever behaviour — near-zero at the root,
 growing non-linearly toward the tip, since each span station carries the integrated moment of all
-aerodynamic load outboard of it.
+load outboard of it.
 
-**Why this matters:** tip deflection is a design-driving constraint on real turbines. The blade must
-not strike the tower under peak gust loading, so this deflection is checked directly against the
-tower clearance envelope.
+**The strongest check in the project** is the root radial reaction. For a rigidly rotating mass
+distribution the total radial force reduces exactly to $m\,\Omega^2 r_{\text{cm}}$, independent of
+how the mass is distributed. With a 22,473 kg blade and its centre of mass at 14.232 m, that gives
+**1,576.3 kN** by hand against **1,578.1 kN** from ANSYS — **0.116 %**. Agreement to one part in a
+thousand simultaneously verifies the mass, density, centre of mass, angular velocity, centrifugal
+load implementation and reaction extraction.
+
+**Why tip deflection matters:** it is a design-driving constraint on real turbines — the blade must
+not strike the tower under peak gust loading — and it is also what decides whether one-way coupling
+was legitimate. At 0.405 m against a 44.2 m radius, the deflection is **0.92 % of rotor radius**,
+small enough that the one-way assumption looks defensible at this operating point.
 
 ### Limitations (honest ones)
 
-- **One-way coupling only.** Deflection is not fed back into the fluid domain, so the aerodynamic
-  load is that of the *undeformed* blade. Since 0.405 m of tip deflection changes the local angle
-  of attack, a two-way coupled solution would give a somewhat different (generally lower) load —
-  this is aeroelastic relief.
-- **Steady MRF**, so no tower shadow, wind shear, yaw misalignment, or transient gusts.
+- **The power coefficient is not converged.** The computed $C_p \approx 0.141$ sits well below the
+  0.30–0.45 a real machine of this class achieves, and the refinement evidence shows it still moving
+  at 7.7 million cells without entering an asymptotic range. It is a coarse-mesh number, not a
+  performance prediction — and reporting that honestly is the point.
+- **No experimental data exists** for either half, so the study is numerically verified and
+  physically assessed, but cannot be called validated. Tip speed matching $\Omega R$ is kinematic
+  verification; staying under the Betz limit is a bound check; the manufacturer $C_p$ comparison is
+  plausibility at best.
+- **One-way coupling only.** Deflection is not fed back, so the load is that of the *undeformed*
+  blade. The 0.92 % deflection ratio supports the assumption, but the change in local **twist** —
+  which is what actually sets angle of attack — was not extracted.
+- **Periodic sector**, so no tower shadow, wind shear, yaw misalignment or transient gusts.
 - **Static structural only** — no modal or fatigue analysis, and fatigue is what actually drives
-  blade life in service.
-- **No grid-convergence study** on the rotor case — the same criticism levelled at the aerofoil
-  case in §1 applies here and has not yet been discharged.
+  blade life in service. Gravity, a once-per-revolution edgewise load, is also omitted.
+- **Von Mises against UTS is the wrong failure measure** for an orthotropic composite. The ≈ 16
+  factor of safety is a scalar screen, not a strength assessment.
+- **No grid-convergence study** on either the rotor or the structural mesh — the same criticism
+  levelled at the aerofoil case in §1 applies here and has not been discharged.
 - Run on the **ANSYS Student licence**, which caps mesh size and therefore limits boundary-layer
   resolution.
 
@@ -235,13 +265,13 @@ tower clearance envelope.
 
 | Area | Detail |
 |---|---|
-| **CFD** | Fluent & CFX, rotating reference frames (MRF), RANS turbulence modelling, external aerodynamics |
-| **Turbulence modelling** | Reynolds decomposition, closure problem, Boussinesq hypothesis, standard *k*–ε, wall functions vs. wall-resolved treatment |
-| **FEA** | Static structural, cantilever load paths |
-| **Multiphysics** | One-way FSI — mapping a CFD pressure field onto a structural mesh |
+| **CFD** | Fluent & CFX, rotating reference frames, rotational periodicity, RANS turbulence modelling, external aerodynamics |
+| **Turbulence modelling** | Reynolds decomposition, closure problem, Boussinesq hypothesis, standard *k*–ε and SST *k*–ω, blending functions and the shear-stress limiter, wall functions vs. wall-resolved treatment |
+| **FEA** | Static structural, shell idealisation, orthotropic composite constitutive modelling, cantilever load paths, reaction equilibrium |
+| **Multiphysics** | One-way FSI — mapping a CFD pressure field onto a non-matching structural mesh, and checking that force and moment survive the transfer |
 | **Meshing** | Boundary-layer inflation, bidirectional edge biasing, sphere-of-influence refinement, orthogonal-quality and aspect-ratio diagnostics |
-| **Verification** | Mass conservation, iterative convergence, domain independence, grid convergence, Richardson extrapolation / GCI, $y^+$ audit |
-| **Validation** | $C_p$ distribution compared against NASA experimental data at matched Reynolds number and incidence |
+| **Verification** | Mass conservation, iterative convergence, domain independence, grid convergence, Richardson extrapolation / GCI, $y^+$ audit, hand-calculation cross-checks on kinematics and centrifugal reaction |
+| **Validation** | $C_p$ distribution compared against NASA experimental data at matched Reynolds number and incidence — and knowing when a comparison is *not* validation |
 | **Theory** | Thin-aerofoil theory, blade element momentum theory, velocity triangles, law of the wall |
 
 ---
