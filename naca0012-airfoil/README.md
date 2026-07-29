@@ -175,7 +175,9 @@ therefore the first thing to calculate.
 
 The chord-based Reynolds number compares inertial transport with molecular momentum diffusion:
 
-$$Re_c = \frac{\rho V_\infty c}{\mu} = \frac{1.1767 \times 51.45 \times 1.00}{1.009\times10^{-5}} \approx 6.0\times10^{6}$$
+$$
+Re_c = \frac{\rho V_\infty c}{\mu} = \frac{1.1767 \times 51.45 \times 1.00}{1.009\times10^{-5}} \approx 6.0\times10^{6}
+$$
 
 | Quantity | Interpretation |
 |---|---|
@@ -209,12 +211,16 @@ yardstick that makes the CFD interpretable.
 
 ### 4.1 Coefficient definitions
 
-$$q_\infty = \tfrac{1}{2}\rho V_\infty^{2}, \qquad
+$$
+q_\infty = \tfrac{1}{2}\rho V_\infty^{2}, \qquad
 C_L = \frac{L'}{q_\infty c}, \qquad
 C_D = \frac{D'}{q_\infty c}, \qquad
-C_p = \frac{p - p_\infty}{q_\infty}$$
+C_p = \frac{p - p_\infty}{q_\infty}
+$$
 
-$$q_\infty = \tfrac{1}{2}(1.1767)(51.45)^2 = 1557.4 \ \text{Pa}$$
+$$
+q_\infty = \tfrac{1}{2}(1.1767)(51.45)^2 = 1557.4 \ \text{Pa}
+$$
 
 In a two-dimensional calculation, lift and drag are reported **per unit span**. With the
 thin-aerofoil estimate below, the sectional lift is $L' \approx 1713$ N/m.
@@ -226,9 +232,13 @@ forgiving of mesh error — a point that returns in §12 and governs the final a
 
 ### 4.2 Thin-aerofoil estimate of lift
 
-$$C_L = 2\pi(\alpha - \alpha_0), \qquad \alpha_0 = 0 \ \text{for a symmetric NACA 0012}$$
+$$
+C_L = 2\pi(\alpha - \alpha_0), \qquad \alpha_0 = 0 \ \text{for a symmetric NACA 0012}
+$$
 
-$$C_L = 2\pi\left(10° \times \frac{\pi}{180°}\right) = 1.097 \approx 1.10$$
+$$
+C_L = 2\pi\left(10° \times \frac{\pi}{180°}\right) = 1.097 \approx 1.10
+$$
 
 This is an excellent order-of-magnitude target, and it is available in thirty seconds without any
 software. But it comes from **inviscid, thin, attached, small-angle** theory: it predicts exactly
@@ -241,12 +251,18 @@ what the answer should be *close to* while leaving genuine work for the CFD and 
 The aerofoil is left horizontal and the incidence is imposed by angling the inflow, so the inlet
 velocity is decomposed as:
 
-$$U_x = V_\infty\cos\alpha = 51.45\cos(10°) = 50.668 \ \text{m/s}$$
-$$U_y = V_\infty\sin\alpha = 51.45\sin(10°) = 8.934 \ \text{m/s}$$
+$$
+U_x = V_\infty\cos\alpha = 51.45\cos(10°) = 50.668 \ \text{m/s}
+$$
+$$
+U_y = V_\infty\sin\alpha = 51.45\sin(10°) = 8.934 \ \text{m/s}
+$$
 
 Lift and drag are then defined relative to the **free-stream direction**, not the chord line:
 
-$$\mathbf{e}_D = (\cos\alpha,\ \sin\alpha), \qquad \mathbf{e}_L = (-\sin\alpha,\ \cos\alpha)$$
+$$
+\mathbf{e}_D = (\cos\alpha,\ \sin\alpha), \qquad \mathbf{e}_L = (-\sin\alpha,\ \cos\alpha)
+$$
 
 This is a real trap. If the force report is left in default axis-aligned components, the reported
 "lift" is the chord-normal force, and at 10° the two differ by enough to matter. An equivalent and
@@ -277,18 +293,26 @@ Turbulent flow contains irregular fluctuations across a wide range of length and
 Since §3 established that resolving them is impossible here, they are removed by averaging.
 **Reynolds decomposition** splits each instantaneous variable into a mean and a fluctuation:
 
-$$u_i = \overline{u_i} + u_i', \qquad p = \overline{p} + p', \qquad \overline{u_i'} = 0$$
+$$
+u_i = \overline{u_i} + u_i', \qquad p = \overline{p} + p', \qquad \overline{u_i'} = 0
+$$
 
 The overbar is a time average and the prime is the fluctuation; by construction the average of a
 fluctuation is zero. Substituting these into the incompressible continuity and Navier–Stokes
 equations and averaging the result gives the **Reynolds-averaged Navier–Stokes** equations:
 
-$$\frac{\partial \overline{u_i}}{\partial x_i} = 0$$
+$$
+\frac{\partial \overline{u_i}}{\partial x_i} = 0
+$$
 
-$$\rho\left(\frac{\partial \overline{u_i}}{\partial t} + \overline{u_j}\frac{\partial \overline{u_i}}{\partial x_j}\right)
-= -\frac{\partial \overline{p}}{\partial x_i}
+$$
+\begin{aligned}
+\rho\left(\frac{\partial \overline{u_i}}{\partial t} + \overline{u_j}\frac{\partial \overline{u_i}}{\partial x_j}\right)
+&= -\frac{\partial \overline{p}}{\partial x_i}
 + \mu\frac{\partial^{2}\overline{u_i}}{\partial x_j \partial x_j}
-- \rho\frac{\partial \overline{u_i' u_j'}}{\partial x_j}$$
+- \rho\frac{\partial \overline{u_i' u_j'}}{\partial x_j}
+\end{aligned}
+$$
 
 Almost every term survives averaging unchanged. The exception is the **non-linear convection
 term**: because it is a product of two fluctuating quantities, its average does not reduce to the
@@ -306,13 +330,18 @@ information was genuinely discarded by the averaging, and it has to be supplied 
 For the steady 2-D case solved here, with the turbulent contributions grouped into
 $f_{\text{turb},x}$ and $f_{\text{turb},y}$:
 
-$$\frac{\partial \overline{u}}{\partial x} + \frac{\partial \overline{v}}{\partial y} = 0$$
+$$
+\frac{\partial \overline{u}}{\partial x} + \frac{\partial \overline{v}}{\partial y} = 0
+$$
 
-$$\rho\left(\overline{u}\frac{\partial \overline{u}}{\partial x} + \overline{v}\frac{\partial \overline{u}}{\partial y}\right)
-= -\frac{\partial \overline{p}}{\partial x} + \mu\nabla^{2}\overline{u} + f_{\text{turb},x}$$
-
-$$\rho\left(\overline{u}\frac{\partial \overline{v}}{\partial x} + \overline{v}\frac{\partial \overline{v}}{\partial y}\right)
-= -\frac{\partial \overline{p}}{\partial y} + \mu\nabla^{2}\overline{v} + f_{\text{turb},y}$$
+$$
+\begin{aligned}
+\rho\left(\overline{u}\frac{\partial \overline{u}}{\partial x} + \overline{v}\frac{\partial \overline{u}}{\partial y}\right)
+&= -\frac{\partial \overline{p}}{\partial x} + \mu\nabla^{2}\overline{u} + f_{\text{turb},x} \\[6pt]
+\rho\left(\overline{u}\frac{\partial \overline{v}}{\partial x} + \overline{v}\frac{\partial \overline{v}}{\partial y}\right)
+&= -\frac{\partial \overline{p}}{\partial y} + \mu\nabla^{2}\overline{v} + f_{\text{turb},y}
+\end{aligned}
+$$
 
 > **A detail worth flagging.** In the *x*-momentum equation the cross-stream convection term is
 > $\overline{v}\,\partial\overline{u}/\partial y$ — the course material renders this incorrectly and it
@@ -336,13 +365,18 @@ velocity gradient, turbulent eddies transport parcels of fluid across the shear 
 a similar net effect — only far more strongly. So a **turbulent viscosity** $\mu_t$ is introduced,
 relating the Reynolds stresses to the mean strain rate:
 
-$$-\rho\,\overline{u_i'u_j'} = 2\mu_t S_{ij} - \tfrac{2}{3}\rho k \delta_{ij},
-\qquad
-S_{ij} = \frac{1}{2}\left(\frac{\partial \overline{u_i}}{\partial x_j} + \frac{\partial \overline{u_j}}{\partial x_i}\right)$$
+$$
+\begin{aligned}
+-\rho\,\overline{u_i'u_j'} &= 2\mu_t S_{ij} - \tfrac{2}{3}\rho k \delta_{ij} \\[6pt]
+S_{ij} &= \frac{1}{2}\left(\frac{\partial \overline{u_i}}{\partial x_j} + \frac{\partial \overline{u_j}}{\partial x_i}\right)
+\end{aligned}
+$$
 
 which in a two-dimensional shear layer reduces to
 
-$$-\rho\,\overline{u'v'} = \mu_t\left(\frac{\partial \overline{u}}{\partial y} + \frac{\partial \overline{v}}{\partial x}\right)$$
+$$
+-\rho\,\overline{u'v'} = \mu_t\left(\frac{\partial \overline{u}}{\partial y} + \frac{\partial \overline{v}}{\partial x}\right)
+$$
 
 **$\mu_t$ is not a fluid property.** This is the point most easily missed. The molecular viscosity
 $\mu$ is a property of air and appears in a table; the eddy viscosity is a property of the *flow*,
@@ -361,13 +395,19 @@ that energy cascades to the smallest eddies and is converted into internal energ
 the turbulence is being destroyed. Between them they set both a velocity scale and a length scale
 for the turbulence, which is all that is needed to form a viscosity:
 
-$$k = \tfrac{1}{2}\overline{u_i'u_i'}, \qquad \mu_t = \rho C_\mu \frac{k^{2}}{\varepsilon}$$
+$$
+k = \tfrac{1}{2}\overline{u_i'u_i'}, \qquad \mu_t = \rho C_\mu \frac{k^{2}}{\varepsilon}
+$$
 
 **Turbulent kinetic energy transport:**
 
-$$\frac{\partial(\rho k)}{\partial t} + \frac{\partial(\rho k \overline{u_j})}{\partial x_j}
-= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_k}\right)\frac{\partial k}{\partial x_j}\right]
-+ P_k - \rho\varepsilon$$
+$$
+\begin{aligned}
+\frac{\partial(\rho k)}{\partial t} + \frac{\partial(\rho k \overline{u_j})}{\partial x_j}
+&= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_k}\right)\frac{\partial k}{\partial x_j}\right]
++ P_k - \rho\varepsilon
+\end{aligned}
+$$
 
 Left to right: transient storage, convection by the mean flow, effective diffusion, production by
 mean shear, and destruction by dissipation. In a converged steady calculation the transient term is
@@ -376,9 +416,13 @@ residual histories can look transient even in a steady run.
 
 **Dissipation-rate transport:**
 
-$$\frac{\partial(\rho \varepsilon)}{\partial t} + \frac{\partial(\rho \varepsilon \overline{u_j})}{\partial x_j}
-= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_\varepsilon}\right)\frac{\partial \varepsilon}{\partial x_j}\right]
-+ C_{1\varepsilon}\frac{\varepsilon}{k}P_k - C_{2\varepsilon}\rho\frac{\varepsilon^{2}}{k}$$
+$$
+\begin{aligned}
+\frac{\partial(\rho \varepsilon)}{\partial t} + \frac{\partial(\rho \varepsilon \overline{u_j})}{\partial x_j}
+&= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_\varepsilon}\right)\frac{\partial \varepsilon}{\partial x_j}\right] \\[4pt]
+&\quad + C_{1\varepsilon}\frac{\varepsilon}{k}P_k - C_{2\varepsilon}\rho\frac{\varepsilon^{2}}{k}
+\end{aligned}
+$$
 
 with production $P_k = 2\mu_t S_{ij}S_{ij}$ for incompressible flow. The $k$ equation can at least
 be derived from the Navier–Stokes equations; the $\varepsilon$ equation is **largely empirical**,
@@ -567,20 +611,28 @@ The differential equations of §5 and §6 have no analytical solution for this g
 converted into algebra. Fluent integrates each governing equation over every control volume,
 starting from the generic transport equation for a scalar $\phi$:
 
-$$\frac{\partial(\rho\phi)}{\partial t} + \nabla\cdot(\rho\mathbf{u}\phi)
-= \nabla\cdot(\Gamma_\phi \nabla\phi) + S_\phi$$
+$$
+\frac{\partial(\rho\phi)}{\partial t} + \nabla\cdot(\rho\mathbf{u}\phi)
+= \nabla\cdot(\Gamma_\phi \nabla\phi) + S_\phi
+$$
 
 Integrating over control volume $\Omega_P$ and applying the divergence theorem converts the volume
 integrals of the convection and diffusion terms into sums over the cell's faces:
 
-$$\int_{\Omega_P}\frac{\partial(\rho\phi)}{\partial t}\,d\Omega
+$$
+\begin{aligned}
+\int_{\Omega_P}\frac{\partial(\rho\phi)}{\partial t}\,d\Omega
 + \sum_f (\rho\mathbf{u}\cdot\mathbf{n}A)_f \phi_f
-= \sum_f (\Gamma_\phi \nabla\phi\cdot\mathbf{n}A)_f
-+ \int_{\Omega_P} S_\phi \,d\Omega$$
+&= \sum_f (\Gamma_\phi \nabla\phi\cdot\mathbf{n}A)_f
++ \int_{\Omega_P} S_\phi \,d\Omega
+\end{aligned}
+$$
 
 which discretizes to one algebraic equation per cell:
 
-$$a_P \phi_P = \sum_N a_N \phi_N + b$$
+$$
+a_P \phi_P = \sum_N a_N \phi_N + b
+$$
 
 where the neighbour coefficients $a_N$ carry the effects of convection and diffusion, and $b$
 collects sources and boundary contributions.
@@ -731,7 +783,9 @@ the failures are what define the next piece of work in §14.
 For steady incompressible flow, the mass entering the domain must equal the mass leaving it.
 A useful normalized measure:
 
-$$\varepsilon_m = \frac{|\dot{m}_{\text{in}} - \dot{m}_{\text{out}}|}{\dot{m}_{\text{in}}} \times 100\%$$
+$$
+\varepsilon_m = \frac{|\dot{m}_{\text{in}} - \dot{m}_{\text{out}}|}{\dot{m}_{\text{in}}} \times 100\%
+$$
 
 The reported net imbalance is of order **10⁻⁷** relative to the incoming flow — very small, and
 confirmation that the discrete equations are being satisfied to tight tolerance. A global
@@ -771,14 +825,18 @@ the problematic trailing-edge region. Refining one region only tells you about t
 
 A simple relative-change measure:
 
-$$\Delta_\phi = \left|\frac{\phi_{\text{fine}} - \phi_{\text{medium}}}{\phi_{\text{fine}}}\right| \times 100\%$$
+$$
+\Delta_\phi = \left|\frac{\phi_{\text{fine}} - \phi_{\text{medium}}}{\phi_{\text{fine}}}\right| \times 100\%
+$$
 
 and, where the refinement ratio $r$ is consistent and the convergence is monotonic, a formal
 **Richardson extrapolation and Grid Convergence Index**:
 
-$$\phi_{\text{ext}} = \phi_1 + \frac{\phi_1 - \phi_2}{r^{p}-1},
+$$
+\phi_{\text{ext}} = \phi_1 + \frac{\phi_1 - \phi_2}{r^{p}-1},
 \qquad
-\text{GCI}_{12} = 1.25\,\frac{|(\phi_1-\phi_2)/\phi_1|}{r^{p}-1}\times 100\%$$
+\text{GCI}_{12} = 1.25\,\frac{|(\phi_1-\phi_2)/\phi_1|}{r^{p}-1}\times 100\%
+$$
 
 The GCI converts the difference between two meshes into an **error band** on the finer one, which
 is what turns "the answer changed a bit when I refined" into a reportable numerical uncertainty.
@@ -812,14 +870,20 @@ wall where molecular viscosity dominates, a **buffer layer**, a **log layer** wh
 transport dominates and the velocity profile is logarithmic, and an outer layer. The position of
 the first cell within that structure is described by the non-dimensional wall distance:
 
-$$u_\tau = \sqrt{\frac{\tau_w}{\rho}}, \qquad
+$$
+u_\tau = \sqrt{\frac{\tau_w}{\rho}}, \qquad
 u^{+} = \frac{u}{u_\tau}, \qquad
-y^{+} = \frac{\rho y u_\tau}{\mu} = \frac{y u_\tau}{\nu}$$
+y^{+} = \frac{\rho y u_\tau}{\mu} = \frac{y u_\tau}{\nu}
+$$
 
-$$u^{+} = y^{+} \quad \text{(viscous sublayer)}, \qquad
-u^{+} = \frac{1}{\kappa}\ln(y^{+}) + B \quad \text{(log layer)}$$
+$$
+u^{+} = y^{+} \quad \text{(viscous sublayer)}, \qquad
+u^{+} = \frac{1}{\kappa}\ln(y^{+}) + B \quad \text{(log layer)}
+$$
 
-$$\kappa \approx 0.41, \qquad B \approx 5.2$$
+$$
+\kappa \approx 0.41, \qquad B \approx 5.2
+$$
 
 ![Near-wall velocity laws](09-near-wall-velocity-laws.png)
 
