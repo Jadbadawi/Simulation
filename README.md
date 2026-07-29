@@ -60,7 +60,7 @@ The linked document covers, with full derivations:
 | **Boussinesq eddy-viscosity hypothesis** | Why $\mu_t$ is *not* a fluid property |
 | **Standard *k*–ε transport equations** | Both equations, all five calibrated constants, and the model's known weaknesses |
 | **Finite-volume discretization** | Generic transport equation → face fluxes → $a_P\phi_P = \sum a_N\phi_N + b$ |
-| **Near-wall theory and $y^+$** | Viscous sublayer, buffer layer, log law, and first-cell sizing |
+| **Near-wall theory and the $y^+$ criterion** | Viscous sublayer, buffer layer, log law, and first-cell sizing |
 | **Verification** | Mass conservation, iterative convergence, domain independence, Richardson extrapolation & GCI |
 | **Validation** | Surface $C_p$ against Gregory & O'Reilly, with Ladson's force data as reference |
 
@@ -195,8 +195,8 @@ $$U_{\text{rel}} = U + \Omega R \qquad \text{(freestream + rotational component)
 
 at an angle of attack $\alpha$ to the chord line. The resulting sectional lift $dF_L$ resolves into:
 
-- **$dF_T$ (tangential)** — drives rotor torque, i.e. the power the turbine extracts
-- **$dF_N$ (normal)** — flapwise bending load, i.e. what the structure has to survive
+- **Tangential component** ($dF_T$) — drives rotor torque, i.e. the power the turbine extracts
+- **Normal component** ($dF_N$) — flapwise bending load, i.e. what the structure has to survive
 
 Because $\Omega R$ grows linearly with radius, $U_{\text{rel}}$ and the local angle of attack both
 vary along the span — which is exactly why real blades are twisted, and why the bending moment

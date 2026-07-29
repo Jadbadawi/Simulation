@@ -337,7 +337,7 @@ $$
 $$
 \begin{aligned}
 \rho\left(\overline{u}\frac{\partial \overline{u}}{\partial x} + \overline{v}\frac{\partial \overline{u}}{\partial y}\right)
-&= -\frac{\partial \overline{p}}{\partial x} + \mu\nabla^{2}\overline{u} + f_{\text{turb},x} \\[6pt]
+&= -\frac{\partial \overline{p}}{\partial x} + \mu\nabla^{2}\overline{u} + f_{\text{turb},x} \\
 \rho\left(\overline{u}\frac{\partial \overline{v}}{\partial x} + \overline{v}\frac{\partial \overline{v}}{\partial y}\right)
 &= -\frac{\partial \overline{p}}{\partial y} + \mu\nabla^{2}\overline{v} + f_{\text{turb},y}
 \end{aligned}
@@ -367,7 +367,7 @@ relating the Reynolds stresses to the mean strain rate:
 
 $$
 \begin{aligned}
--\rho\,\overline{u_i'u_j'} &= 2\mu_t S_{ij} - \tfrac{2}{3}\rho k \delta_{ij} \\[6pt]
+-\rho\,\overline{u_i'u_j'} &= 2\mu_t S_{ij} - \tfrac{2}{3}\rho k \delta_{ij} \\
 S_{ij} &= \frac{1}{2}\left(\frac{\partial \overline{u_i}}{\partial x_j} + \frac{\partial \overline{u_j}}{\partial x_i}\right)
 \end{aligned}
 $$
@@ -378,10 +378,11 @@ $$
 -\rho\,\overline{u'v'} = \mu_t\left(\frac{\partial \overline{u}}{\partial y} + \frac{\partial \overline{v}}{\partial x}\right)
 $$
 
-**$\mu_t$ is not a fluid property.** This is the point most easily missed. The molecular viscosity
-$\mu$ is a property of air and appears in a table; the eddy viscosity is a property of the *flow*,
-varies from cell to cell, can exceed $\mu$ by orders of magnitude in the outer layer, and must fall
-to zero at the wall. The entire job of a turbulence model is to supply a field of $\mu_t$.
+**The eddy viscosity is not a fluid property.** This is the point most easily missed. The molecular
+viscosity $\mu$ is a property of air and appears in a table; the eddy viscosity $\mu_t$ is a
+property of the *flow*: it varies from cell to cell, can exceed $\mu$ by orders of magnitude in the
+outer layer, and must fall to zero at the wall. The entire job of a turbulence model is to supply a
+field of $\mu_t$.
 
 The analogy is also an approximation with a known weakness: it forces the Reynolds-stress tensor to
 be aligned with the mean strain-rate tensor. Real turbulence is not obliged to comply, particularly
@@ -389,11 +390,12 @@ where the flow is strongly accelerated, curved, or separating.
 
 ### 6.2 The standard *k*–ε model
 
-Two extra transport equations are solved. **$k$** is the kinetic energy held in the turbulent
-velocity fluctuations — how energetic the turbulence is. **$\varepsilon$** is the rate at which
-that energy cascades to the smallest eddies and is converted into internal energy — how quickly
-the turbulence is being destroyed. Between them they set both a velocity scale and a length scale
-for the turbulence, which is all that is needed to form a viscosity:
+Two extra transport equations are solved. The first carries the **turbulent kinetic energy** $k$ —
+the energy held in the turbulent velocity fluctuations, that is, how energetic the turbulence is.
+The second carries the **dissipation rate** $\varepsilon$ — the rate at which that energy cascades
+to the smallest eddies and is converted into internal energy, that is, how quickly the turbulence
+is being destroyed. Between them they set both a velocity scale and a length scale for the
+turbulence, which is all that is needed to form a viscosity:
 
 $$
 k = \tfrac{1}{2}\overline{u_i'u_i'}, \qquad \mu_t = \rho C_\mu \frac{k^{2}}{\varepsilon}
@@ -419,7 +421,7 @@ residual histories can look transient even in a steady run.
 $$
 \begin{aligned}
 \frac{\partial(\rho \varepsilon)}{\partial t} + \frac{\partial(\rho \varepsilon \overline{u_j})}{\partial x_j}
-&= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_\varepsilon}\right)\frac{\partial \varepsilon}{\partial x_j}\right] \\[4pt]
+&= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_\varepsilon}\right)\frac{\partial \varepsilon}{\partial x_j}\right] \\
 &\quad + C_{1\varepsilon}\frac{\varepsilon}{k}P_k - C_{2\varepsilon}\rho\frac{\varepsilon^{2}}{k}
 \end{aligned}
 $$
@@ -661,7 +663,7 @@ $\varepsilon$, which depend on the velocity gradients). So it is solved iterativ
 The order of operations here matters as much as the settings themselves:
 
 1. **Start first-order.** First-order upwind interpolation is unconditionally stable and heavily damped, so it converges from a poor initial guess where a second-order scheme would diverge. It is a means of getting a physically sensible starting field, not an answer.
-2. **Monitor residuals *together with* $C_L$ and $C_D$**, not residuals alone.
+2. **Monitor the force coefficients alongside the residuals** — $C_L$ and $C_D$, not residuals alone.
 3. Run until that initial solution is stable — residuals of order **10⁻³**.
 4. **Switch momentum and turbulence equations to second order** for the final solution.
 5. Tighten residual targets to ≈ **10⁻⁶** and continue iterating.
