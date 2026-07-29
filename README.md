@@ -23,7 +23,7 @@ solution to a structural FEA of the blade.
 
 | Study | Method | Key result | Validation status |
 |---|---|---|---|
-| [**NACA 0012 aerofoil**](naca0012-airfoil/README.md) | 2-D steady RANS, standard *k*–ε, $Re_c = 6\times10^{6}$ | Suction peak, pressure recovery and wake captured; full $C_p$ distribution resolved | Surface $C_p$ **agrees closely** with NASA experimental data ✅ |
+| [**NACA 0012 aerofoil**](naca0012-airfoil/README.md) | 2-D steady RANS, standard *k*–ε, $Re_c = 6\times10^{6}$ | $C_L \approx 1.06$; suction peak, pressure recovery and wake captured across the full $C_p$ distribution | Surface $C_p$ **agrees closely** with NASA data; $C_L$ within **1.4 %** of experiment ✅ |
 | [**Wind turbine FSI**](#3-wind-turbine--fluidstructure-interaction) | One-way coupled CFD → FEA, MRF rotating frame | Tip deflection **0.405 m**, tip speed 98 m/s | Qualitative — cantilever load path as expected |
 
 > The part I'd most like a reader to notice isn't the contour plots — it's the chain of reasoning
@@ -77,9 +77,14 @@ The linked document covers, with full derivations:
 
 The predicted surface pressure distribution **overlaps the NASA experimental data closely** across
 the chord — capturing the leading-edge suction peak, the pressure recovery toward the trailing
-edge, and the stagnation region. Because the $C_p$ distribution *is* the aerodynamic loading,
-matching it over the full chord is a far stronger result than matching a single integrated
-coefficient, which can agree through error cancellation.
+edge, and the stagnation region. The integrated lift follows from it at $C_L \approx 1.06$ against
+an experimental 1.07–1.08, about **1.4 % low**, and a thin-aerofoil hand calculation of 1.097 done
+before any solver was opened.
+
+Because the $C_p$ distribution *is* the aerodynamic loading, matching it over the full chord is a
+far stronger result than matching a single integrated coefficient — an integrated value can agree
+through error cancellation between two compensating errors, whereas a point-by-point match cannot
+happen by accident.
 
 The comparison uses the NASA NACA 0012 validation resources — **Gregory & O'Reilly** for surface
 pressure and **Ladson** for the force coefficients — at matched Reynolds number and incidence.
@@ -89,7 +94,7 @@ Alongside the physical validation, the write-up carries a full **numerical verif
 - **Mass conservation** — normalized imbalance of order 10⁻⁷ of the incoming flow.
 - **Iterative convergence** — residuals to ≈ 10⁻⁶ with flat force monitors, not residuals alone.
 - **Near-wall audit** — the computed $y^+$ distribution checked against the range the chosen wall treatment actually requires.
-- **Domain and grid independence** — the remaining work, set out as a controlled [verification matrix](naca0012-airfoil/README.md#14-improvement-plan-and-verification-matrix) of six cases, one variable changed at a time, each with a stated acceptance criterion.
+- **Domain and grid independence** — the remaining work, set out as a controlled [verification matrix](naca0012-airfoil/README.md#142-the-verification-matrix) of six cases, one variable changed at a time, each with a stated acceptance criterion.
 
 > **Verification and validation answer different questions.** Verification asks whether the
 > equations were solved correctly; validation asks whether those equations describe the real flow.
