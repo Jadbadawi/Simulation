@@ -260,9 +260,9 @@ lets a genuinely unsteady problem be treated as steady, but the price is two ext
 terms:
 
 $$
-\rho\left(\overline{\mathbf{u}}_r \cdot \nabla\right)\overline{\mathbf{u}}_r
-+ \rho\underbrace{\left(2\boldsymbol{\Omega} \times \overline{\mathbf{u}}_r\right)}_{\text{Coriolis}}
-+ \rho\underbrace{\left[\boldsymbol{\Omega} \times \left(\boldsymbol{\Omega} \times \mathbf{r}\right)\right]}_{\text{centripetal}}
+\rho\left(\overline{\mathbf{u}}_r \cdot \nabla\right)\overline{\mathbf{u}}_r +
+\rho\underbrace{\left(2\boldsymbol{\Omega} \times \overline{\mathbf{u}}_r\right)}_{\text{Coriolis}} +
+\rho\underbrace{\left[\boldsymbol{\Omega} \times \left(\boldsymbol{\Omega} \times \mathbf{r}\right)\right]}_{\text{centripetal}}
 = -\nabla \overline{p} + \nabla \cdot \boldsymbol{\tau}_{\text{eff}}
 $$
 
@@ -299,11 +299,11 @@ $k$, one for **specific** dissipation rate $\omega$:
 $$
 \begin{aligned}
 \nabla \cdot \left(\rho \overline{\mathbf{u}}_r k\right)
-&= P_k - \beta^{*}\rho k \omega + \nabla \cdot \left[\left(\mu + \sigma_k \mu_t\right)\nabla k\right] \\
+&= P_k - \beta^{*}\rho k \omega + \nabla \cdot \left[\left(\mu + \sigma_k \mu_t\right)\nabla k\right] \\\\
 \nabla \cdot \left(\rho \overline{\mathbf{u}}_r \omega\right)
-&= \alpha \rho S^{2} - \beta \rho \omega^{2}
-+ \nabla \cdot \left[\left(\mu + \sigma_\omega \mu_t\right)\nabla \omega\right]
-+ 2\left(1 - F_1\right)\frac{\rho \sigma_{\omega 2}}{\omega}\nabla k \cdot \nabla \omega
+&= \alpha \rho S^{2} - \beta \rho \omega^{2} +
+\nabla \cdot \left[\left(\mu + \sigma_\omega \mu_t\right)\nabla \omega\right] +
+2\left(1 - F_1\right)\frac{\rho \sigma_{\omega 2}}{\omega}\nabla k \cdot \nabla \omega
 \end{aligned}
 $$
 
@@ -842,10 +842,10 @@ change $\boldsymbol{\kappa}$ produces **bending moments**. The standard laminate
 them:
 
 $$
-\begin{bmatrix} \mathbf{N} \\ \mathbf{M} \end{bmatrix}
+\begin{bmatrix} \mathbf{N} \\\\ \mathbf{M} \end{bmatrix}
 =
-\begin{bmatrix} \mathbf{A} & \mathbf{B} \\ \mathbf{B} & \mathbf{D} \end{bmatrix}
-\begin{bmatrix} \boldsymbol{\varepsilon}_0 \\ \boldsymbol{\kappa} \end{bmatrix}
+\begin{bmatrix} \mathbf{A} & \mathbf{B} \\\\ \mathbf{B} & \mathbf{D} \end{bmatrix}
+\begin{bmatrix} \boldsymbol{\varepsilon}_0 \\\\ \boldsymbol{\kappa} \end{bmatrix}
 $$
 
 For a single homogeneous orthotropic layer centred on the midsurface, the coupling matrix
@@ -870,9 +870,9 @@ Equivalently, the same equations follow from minimising the total potential ener
 energy balanced against the work done by aerodynamic pressure and centrifugal body loading:
 
 $$
-\Pi = \tfrac{1}{2}\int_{V} \boldsymbol{\varepsilon}^{T}\mathbf{D}\,\boldsymbol{\varepsilon}\ dV
-- \int_{S} \mathbf{u}^{T} p\,\mathbf{n}\ dS
-- \int_{V} \mathbf{u}^{T} \mathbf{b}_\Omega\ dV
+\Pi = \tfrac{1}{2}\int_{V} \boldsymbol{\varepsilon}^{T}\mathbf{D}\,\boldsymbol{\varepsilon}\ dV -
+\int_{S} \mathbf{u}^{T} p\,\mathbf{n}\ dS -
+\int_{V} \mathbf{u}^{T} \mathbf{b}_\Omega\ dV
 $$
 
 Setting the first variation $\delta\Pi = 0$ gives the global algebraic equations. Essential boundary

@@ -308,9 +308,9 @@ $$
 $$
 \begin{aligned}
 \rho\left(\frac{\partial \overline{u_i}}{\partial t} + \overline{u_j}\frac{\partial \overline{u_i}}{\partial x_j}\right)
-&= -\frac{\partial \overline{p}}{\partial x_i}
-+ \mu\frac{\partial^{2}\overline{u_i}}{\partial x_j \partial x_j}
-- \rho\frac{\partial \overline{u_i' u_j'}}{\partial x_j}
+&= -\frac{\partial \overline{p}}{\partial x_i} +
+\mu\frac{\partial^{2}\overline{u_i}}{\partial x_j \partial x_j} -
+\rho\frac{\partial \overline{u_i' u_j'}}{\partial x_j}
 \end{aligned}
 $$
 
@@ -337,7 +337,7 @@ $$
 $$
 \begin{aligned}
 \rho\left(\overline{u}\frac{\partial \overline{u}}{\partial x} + \overline{v}\frac{\partial \overline{u}}{\partial y}\right)
-&= -\frac{\partial \overline{p}}{\partial x} + \mu\nabla^{2}\overline{u} + f_{\text{turb},x} \\
+&= -\frac{\partial \overline{p}}{\partial x} + \mu\nabla^{2}\overline{u} + f_{\text{turb},x} \\\\
 \rho\left(\overline{u}\frac{\partial \overline{v}}{\partial x} + \overline{v}\frac{\partial \overline{v}}{\partial y}\right)
 &= -\frac{\partial \overline{p}}{\partial y} + \mu\nabla^{2}\overline{v} + f_{\text{turb},y}
 \end{aligned}
@@ -367,7 +367,7 @@ relating the Reynolds stresses to the mean strain rate:
 
 $$
 \begin{aligned}
--\rho\,\overline{u_i'u_j'} &= 2\mu_t S_{ij} - \tfrac{2}{3}\rho k \delta_{ij} \\
+-\rho\,\overline{u_i'u_j'} &= 2\mu_t S_{ij} - \tfrac{2}{3}\rho k \delta_{ij} \\\\
 S_{ij} &= \frac{1}{2}\left(\frac{\partial \overline{u_i}}{\partial x_j} + \frac{\partial \overline{u_j}}{\partial x_i}\right)
 \end{aligned}
 $$
@@ -406,8 +406,8 @@ $$
 $$
 \begin{aligned}
 \frac{\partial(\rho k)}{\partial t} + \frac{\partial(\rho k \overline{u_j})}{\partial x_j}
-&= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_k}\right)\frac{\partial k}{\partial x_j}\right]
-+ P_k - \rho\varepsilon
+&= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_k}\right)\frac{\partial k}{\partial x_j}\right] +
+P_k - \rho\varepsilon
 \end{aligned}
 $$
 
@@ -421,7 +421,7 @@ residual histories can look transient even in a steady run.
 $$
 \begin{aligned}
 \frac{\partial(\rho \varepsilon)}{\partial t} + \frac{\partial(\rho \varepsilon \overline{u_j})}{\partial x_j}
-&= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_\varepsilon}\right)\frac{\partial \varepsilon}{\partial x_j}\right] \\
+&= \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_\varepsilon}\right)\frac{\partial \varepsilon}{\partial x_j}\right] \\\\
 &\quad + C_{1\varepsilon}\frac{\varepsilon}{k}P_k - C_{2\varepsilon}\rho\frac{\varepsilon^{2}}{k}
 \end{aligned}
 $$
@@ -623,10 +623,10 @@ integrals of the convection and diffusion terms into sums over the cell's faces:
 
 $$
 \begin{aligned}
-\int_{\Omega_P}\frac{\partial(\rho\phi)}{\partial t}\,d\Omega
-+ \sum_f (\rho\mathbf{u}\cdot\mathbf{n}A)_f \phi_f
-&= \sum_f (\Gamma_\phi \nabla\phi\cdot\mathbf{n}A)_f
-+ \int_{\Omega_P} S_\phi \,d\Omega
+\int_{\Omega_P}\frac{\partial(\rho\phi)}{\partial t}\,d\Omega +
+\sum_f (\rho\mathbf{u}\cdot\mathbf{n}A)_f \phi_f
+&= \sum_f (\Gamma_\phi \nabla\phi\cdot\mathbf{n}A)_f +
+\int_{\Omega_P} S_\phi \,d\Omega
 \end{aligned}
 $$
 
