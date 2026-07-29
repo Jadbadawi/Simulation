@@ -1,0 +1,68 @@
+Copyright (c) 2026 Jad El Badaoui
+
+This repository contains both software and written technical material, which are
+licensed differently. Third-party material is excluded from both grants -- see the
+exceptions at the end.
+
+
+================================================================================
+1. SOFTWARE -- MIT Licence
+================================================================================
+
+Applies to the code in tools/.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in the
+Software without restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+================================================================================
+2. WRITTEN MATERIAL AND FIGURES -- CC BY-NC 4.0
+================================================================================
+
+Applies to the technical write-ups, result figures and original diagrams:
+README.md, naca0012-airfoil/ and turbine-fsi/.
+
+Licensed under the Creative Commons Attribution-NonCommercial 4.0 International
+Licence. You may share and adapt this material for non-commercial purposes,
+provided you give appropriate credit and indicate if changes were made.
+
+Full text: https://creativecommons.org/licenses/by-nc-4.0/legalcode
+Summary:   https://creativecommons.org/licenses/by-nc-4.0/
+
+
+================================================================================
+3. EXCEPTIONS -- material not covered by the licences above
+================================================================================
+
+CornellX ENGR2000X course material
+    The simulations were built alongside CornellX ENGR2000X on edX. Geometry and
+    case setup supplied by that course is Cornell's copyrighted teaching material.
+    For that reason no ANSYS project archives (.wbpj / .wbpz) are included in this
+    repository, and the diagrams in the write-ups are original renderings rather
+    than reproductions of Cornell's slides. Nothing in this licence grants any
+    right to Cornell's material.
+
+Experimental validation data
+    The NACA 0012 surface pressure and force data used for validation are from the
+    NASA validation resources -- Gregory & O'Reilly for surface pressure, Ladson
+    for force coefficients. Those datasets belong to their originators and are
+    referenced, not redistributed.
+
+ANSYS
+    ANSYS is licensed commercial software and is not included or redistributed
+    here. The work shown was produced under an ANSYS Student licence, whose mesh
+    size limits are noted in the write-ups.

@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: >-
+  Validated NACA 0012 aerodynamics and one-way wind-turbine fluid-structure
+  interaction in ANSYS Fluent and Mechanical
+message: If you refer to this work, please cite it using these metadata.
+type: software
+authors:
+  - given-names: Jad
+    family-names: El Badaoui
+    affiliation: University of Bristol
+abstract: >-
+  Two linked simulation studies. A two-dimensional steady RANS solution over a
+  NACA 0012 section at 10 degrees incidence and a chord Reynolds number of 6e6,
+  carried from hand calculation and the governing equations through mesh design and
+  the finite-volume method to formal numerical verification and validation against
+  NASA experimental surface-pressure data. That aerofoil work then feeds a one-way
+  coupled fluid-structure interaction study of a three-bladed horizontal-axis wind
+  turbine, in which a rotating-frame CFD solution on a 120-degree periodic sector
+  produces the aerodynamic pressure field that loads an orthotropic composite shell
+  model. Includes a dependency-free pre-analysis calculator that reproduces every
+  quoted hand calculation, and an explicit account of what is verified, what is
+  validated, and what is neither.
+keywords:
+  - computational fluid dynamics
+  - ANSYS Fluent
+  - finite volume method
+  - RANS turbulence modelling
+  - fluid-structure interaction
+  - verification and validation
+  - grid convergence
+  - wind turbine
+  - aerodynamics
+  - aerospace engineering
+license: CC-BY-NC-4.0
+repository-code: https://github.com/Jadbadawi/aerospace-cfd-fsi
+date-released: "2026-07-29"
